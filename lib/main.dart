@@ -44,7 +44,6 @@ class InBankForm extends StatelessWidget {
       home: Scaffold(
         // Center the body and set its height.
         body: Center(
-            child: Expanded(
           child: SizedBox(
             height: max(minHeight, bodyHeight),
             child: Column(
@@ -65,7 +64,7 @@ class InBankForm extends StatelessWidget {
               ],
             ),
           ),
-        )),
+        ),
       ),
     );
   }
