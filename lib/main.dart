@@ -39,7 +39,7 @@ class InBankForm extends StatelessWidget {
               .copyWith(secondary: AppColors.secondaryColor)
               .copyWith(error: AppColors.errorColor),
           textSelectionTheme: TextSelectionThemeData(
-            selectionColor: AppColors.textColor.withOpacity(0.3),
+            selectionColor: AppColors.textColor.withValues(alpha: 0.3),
           )),
       home: Scaffold(
         // Center the body and set its height.
