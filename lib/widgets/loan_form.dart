@@ -1,26 +1,24 @@
-// This file defines a `LoanForm` widget which is a stateful widget
-// that displays a loan application form.
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:inbank_frontend/fonts.dart';
 import 'package:inbank_frontend/widgets/national_id_field.dart';
 
 import '../api_service.dart';
-import '../colors.dart';
+import 'loan_amount_slider.dart';
+import 'loan_period_slider.dart';
+import 'loan_results.dart';
 
-// LoanForm is a StatefulWidget that displays a loan application form.
 class LoanForm extends StatefulWidget {
   const LoanForm({super.key});
 
   @override
-  _LoanFormState createState() => _LoanFormState();
+  LoanFormState createState() => LoanFormState();
 }
 
-class _LoanFormState extends State<LoanForm> {
+class LoanFormState extends State<LoanForm> {
   final _formKey = GlobalKey<FormState>();
   final _apiService = ApiService();
+
   String _nationalId = '';
   int _loanAmount = 2500;
   int _loanPeriod = 36;
@@ -28,8 +26,6 @@ class _LoanFormState extends State<LoanForm> {
   int _loanPeriodResult = 0;
   String _errorMessage = '';
 
-  // Submit the form and update the state with the loan decision results.
-  // Only submits if the form inputs are validated.
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final result = await _apiService.requestLoanDecision(
@@ -53,9 +49,6 @@ class _LoanFormState extends State<LoanForm> {
     }
   }
 
-  // Builds the application form widget.
-  // The widget automatically queries the endpoint for the latest data
-  // when a field is changed.
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -65,6 +58,7 @@ class _LoanFormState extends State<LoanForm> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Main box
           SizedBox(
             width: max(minWidth, formWidth),
             child: Form(
@@ -88,101 +82,42 @@ class _LoanFormState extends State<LoanForm> {
                       );
                     },
                   ),
+
+                  // Loan Amount Box
                   const SizedBox(height: 60.0),
-                  Text('Loan Amount: $_loanAmount €'),
-                  const SizedBox(height: 8),
-                  Slider.adaptive(
-                    value: _loanAmount.toDouble(),
-                    min: 2000,
-                    max: 10000,
-                    divisions: 80,
-                    label: '$_loanAmount €',
-                    activeColor: AppColors.secondaryColor,
-                    onChanged: (double newValue) {
+                  LoanAmountSlider(
+                    loanAmount: _loanAmount,
+                    onChanged: (newAmount) {
                       setState(() {
-                        _loanAmount = ((newValue.floor() / 100).round() * 100);
+                        _loanAmount = newAmount;
                         _submitForm();
                       });
                     },
                   ),
-                  const SizedBox(height: 4),
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 12),
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text('2000€')),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 12),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Text('10000€'),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+
+                  // Loan Period Slider Box
                   const SizedBox(height: 24.0),
-                  Text('Loan Period: $_loanPeriod months'),
-                  const SizedBox(height: 8),
-                  Slider.adaptive(
-                    value: _loanPeriod.toDouble(),
-                    min: 12,
-                    max: 60,
-                    divisions: 40,
-                    label: '$_loanPeriod months',
-                    activeColor: AppColors.secondaryColor,
-                    onChanged: (double newValue) {
+                  LoanPeriodSlider(
+                    loanPeriod: _loanPeriod,
+                    onChanged: (newPeriod) {
                       setState(() {
-                        _loanPeriod = ((newValue.floor() / 6).round() * 6);
+                        _loanPeriod = newPeriod;
                         _submitForm();
                       });
                     },
-                  ),
-                  const SizedBox(height: 4),
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 12),
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text('6 months')),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 12),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Text('60 months'),
-                          ),
-                        ),
-                      )
-                    ],
                   ),
                   const SizedBox(height: 24.0),
                 ],
               ),
             ),
           ),
+
+          // Loan Results Box
           const SizedBox(height: 16.0),
-          Column(
-            children: [
-              Text(
-                  'Approved Loan Amount: ${_loanAmountResult != 0 ? _loanAmountResult : "--"} €'),
-              const SizedBox(height: 8.0),
-              Text(
-                  'Approved Loan Period: ${_loanPeriodResult != 0 ? _loanPeriodResult : "--"} months'),
-              Visibility(
-                  visible: _errorMessage != '',
-                  child: Text(_errorMessage, style: errorMedium))
-            ],
+          LoanResults(
+            loanAmountResult: _loanAmountResult,
+            loanPeriodResult: _loanPeriodResult,
+            errorMessage: _errorMessage,
           ),
         ],
       ),
