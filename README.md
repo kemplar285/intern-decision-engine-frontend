@@ -25,7 +25,7 @@ To run the application, follow these steps:
 1. Clone the repository.
 2. Navigate to the root directory of the project.
 3. Run `flutter pub get` to install the required dependencies.
-4. Run `flutter run` to start the application in debug mode.
+4. Run `flutter run --dart-define=API_BASE_URL=http://localhost:8080` to start the application in debug mode.
 
 ## Functionality
 The InBank Frontend application provides a form for submitting loan applications.
