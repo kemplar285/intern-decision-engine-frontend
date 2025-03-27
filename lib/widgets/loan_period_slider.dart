@@ -23,7 +23,7 @@ class LoanPeriodSlider extends StatelessWidget {
           value: loanPeriod.toDouble(),
           min: minLoanPeriod.toDouble(),
           max: maxLoanPeriod.toDouble(),
-          divisions: 6,
+          divisions: 36,
           label: '$loanPeriod months',
           activeColor: AppColors.secondaryColor,
           onChanged: (double newValue) {
