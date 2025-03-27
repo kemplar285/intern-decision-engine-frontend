@@ -9,6 +9,8 @@ class NationalIdTextFormField extends StatelessWidget {
   final String? initialValue;
   final void Function(String?)? onChanged;
   final String? Function(String?)? validator;
+  static const int loanMaximumPeriodInYears = 4;
+  static const int currentExpectedLifespanEurope = 81;
 
   const NationalIdTextFormField({
     super.key,
@@ -16,6 +18,47 @@ class NationalIdTextFormField extends StatelessWidget {
     this.onChanged,
     this.validator,
   });
+
+  bool isCustomerWithingAgeRange(String idCode) {
+    if (idCode.length != 11) {
+      return false; // Invalid ID code length
+    }
+
+    try {
+      int yearPrefix = int.parse(idCode.substring(0, 1));
+      int year = int.parse(idCode.substring(1, 3));
+      int currentYear = DateTime.now().year;
+      int birthYear;
+
+      if (yearPrefix == 1 || yearPrefix == 2) {
+        birthYear = 1800 + year;
+      } else if (yearPrefix == 3 || yearPrefix == 4) {
+        birthYear = 1900 + year;
+      } else if (yearPrefix == 5 || yearPrefix == 6) {
+        birthYear = 2000 + year;
+      } else {
+        return false; // Invalid prefix
+      }
+
+      int age = currentYear - birthYear;
+
+      // Adjust age if birthday hasn't occurred yet this year.
+      int birthMonth = int.parse(idCode.substring(3, 5));
+      int birthDay = int.parse(idCode.substring(5, 7));
+      int currentMonth = DateTime.now().month;
+      int currentDay = DateTime.now().day;
+
+      if (currentMonth < birthMonth ||
+          (currentMonth == birthMonth && currentDay < birthDay)) {
+        age--;
+      }
+
+      return age >= 18 &&
+          age <= currentExpectedLifespanEurope - loanMaximumPeriodInYears;
+    } catch (e) {
+      return false; // Invalid ID code format
+    }
+  }
 
   // Builds the text form field widget with customized decoration and validation
   @override
@@ -48,6 +91,9 @@ class NationalIdTextFormField extends StatelessWidget {
             }
             if (value.length != 11) {
               return 'National ID is 11 digits long.';
+            }
+            if (!isCustomerWithingAgeRange(value)) {
+              return 'Loan was not approved due to age constraints.';
             }
             return null;
           },
